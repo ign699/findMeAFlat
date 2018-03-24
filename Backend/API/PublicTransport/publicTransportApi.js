@@ -1,5 +1,3 @@
-var api = require('./../api');
-
 var key = 'AIzaSyBAFqFmtK0vxuJ7UjLXiRLKXebSdR9n9nQ';
 var googleMapsClient = require('@google/maps').createClient({
   key: key,
@@ -72,7 +70,5 @@ var getTransitData = (origin, destination) => {
 		});
 	});
 };
-
-getTransitData.prototype = api;
 
 exports.getTransitData = getTransitData;
