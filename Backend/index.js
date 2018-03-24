@@ -1,8 +1,9 @@
-var ptApi = require('./Api/PublicTransport/publicTransportApi');
+var directionApi = require('./Api/Direction/DirectionApi');
 
-var printTransitData = (origin, destination) => {
-	ptApi.getTransitData(origin, destination)
+var printDirectionData = (origin, destination, mode) => {
+	directionApi.getDirectionData(origin, destination, mode)
 	.then((res) => {
+		console.log(mode);
 		console.log(res);
 	})
 	.catch((err) => {
@@ -10,4 +11,7 @@ var printTransitData = (origin, destination) => {
 	});
 } 
 
-printTransitData('Warszawa, Dworzec centralny', 'Warszawa, Rynek Starego Miasta');
+printDirectionData('Warszawa, Dworzec centralny', 'Warszawa, Rynek Starego Miasta', 'transit');
+printDirectionData('Warszawa, Dworzec centralny', 'Warszawa, Rynek Starego Miasta', 'driving');
+printDirectionData('Warszawa, Dworzec centralny', 'Warszawa, Rynek Starego Miasta', 'walking');
+printDirectionData('Warszawa, Dworzec centralny', 'Warszawa, Rynek Starego Miasta', 'bicycling');

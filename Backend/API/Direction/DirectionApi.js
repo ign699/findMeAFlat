@@ -1,10 +1,12 @@
+//Cities serving Google Transit in Poland: Bialystok, Jaworzno, Łódź, Olsztyn, Szczecin, Warszawa, Zielona Gora
+
 var key = 'AIzaSyBAFqFmtK0vxuJ7UjLXiRLKXebSdR9n9nQ';
 var googleMapsClient = require('@google/maps').createClient({
   key: key,
   Promise: Promise
 });
 
-var getTransitData = (origin, destination) => {
+var getDirectionData = (origin, destination, mode) => {
 	var secondsToMinutes = (seconds) => {
 		return parseInt(Math.round(seconds/60), 10);
 	};
@@ -18,6 +20,7 @@ var getTransitData = (origin, destination) => {
 		var walkingDuration = 0;
 		var transitDistance = 0;
 		var transitDuration = 0;
+		var vehicles = [];
 		
 		for(var i=0;i<steps.length;i++){
 			var step = steps[i];
@@ -25,11 +28,16 @@ var getTransitData = (origin, destination) => {
 			var stepDistance = step.distance;
 			var stepDuration = step.duration;
 			
-			if(travelMode === 'TRANSIT'){
+			if(travelMode.toLowerCase() === 'transit'){
+				var line = step.transit_details.line;
+				vehicles.push({ 
+					name: line.short_name, 
+					type: line.vehicle.type
+				});
 				transitDistance += stepDistance.value;
 				transitDuration += stepDuration.value;
 			}
-			if(travelMode === 'WALKING'){
+			if(travelMode.toLowerCase() === 'walking'){
 				walkingDistance += stepDistance.value;
 				walkingDuration += stepDuration.value;
 			}
@@ -39,7 +47,8 @@ var getTransitData = (origin, destination) => {
 			transitDistance: metersToKilometers(transitDistance),
 			transitDuration: secondsToMinutes(transitDuration),
 			walkingDistance: metersToKilometers(walkingDistance),
-			walkingDuration: secondsToMinutes(walkingDuration)
+			walkingDuration: secondsToMinutes(walkingDuration),
+			vehicles: vehicles
 		};
 	};
 	
@@ -48,14 +57,14 @@ var getTransitData = (origin, destination) => {
 			{
 				origin: origin,
 				destination: destination,
-				mode: 'transit'
+				mode: mode
 			}
 		)
 		.asPromise()
 		.then((response) => {
 			if(response.status === 200){
 				var route = response.json.routes[0].legs[0];
-				var res = calculateDistances(route.steps);
+				var res = mode.toLowerCase() === 'transit' ? calculateDistances(route.steps) : {};
 				res.distance = metersToKilometers(route.distance.value);
 				res.duration = secondsToMinutes(route.duration.value);
 				
@@ -71,4 +80,4 @@ var getTransitData = (origin, destination) => {
 	});
 };
 
-exports.getTransitData = getTransitData;
+exports.getDirectionData = getDirectionData;
